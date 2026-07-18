@@ -1,1 +1,1 @@
-# terraform_ec2_ansible_node
+# terraform-ec2-infra
