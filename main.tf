@@ -54,11 +54,12 @@ resource "aws_instance" "ansible_control" {
 
   # Bootstrapping the Control Node with Ansible & Python dependencies
                 #pip3 install ansible boto3 botocore
+                #ansible-core
   user_data = <<-EOF
               #!/bin/bash
               dnf update -y
               dnf install -y python3-pip git htop
-              pip3 install ansible-core boto3 botocore
+              pip3 install ansible boto3 botocore
               ansible-galaxy collection install amazon.aws -p /usr/share/ansible/collections
               
               # Store the private SSH key on control node to access managed node
