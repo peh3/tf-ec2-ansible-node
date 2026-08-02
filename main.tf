@@ -68,7 +68,7 @@ resource "aws_instance" "ansible_control" {
               chown -R ec2-user:ec2-user /home/ec2-user/.ssh
 
               cd /home/ec2-user
-              git clone https://github.com/peh3/tf-ansible-lab.git
+              git clone https://github.com/peh3/ansible-demo-lab.git
 
               chown -R ec2-user:ec2-user /home/ec2-user
               EOF
