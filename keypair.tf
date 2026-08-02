@@ -1,3 +1,4 @@
+/*
 # 1. Generate a secure RSA private key
 resource "tls_private_key" "ec2_key" {
   algorithm = "RSA"
@@ -15,4 +16,14 @@ resource "local_file" "private_key" {
   content         = tls_private_key.ec2_key.private_key_pem
   filename        = "${path.module}/tk-ec2-key.pem"
   file_permission = "0400" # Sets read-only permissions for safety
+}
+*/
+resource "tls_private_key" "ansible_ec2_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "ansible_ec2_keypair" {
+  key_name   = "${var.demo}-ec2-keypair"
+  public_key = tls_private_key.ansible_ec2_key.public_key_openssh
 }
