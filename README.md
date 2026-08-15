@@ -1,5 +1,21 @@
 # terraform-ec2-infra
+# tf-ec2-ansible-node
 
+AWS EC2 + Terraform Infrastructure Deployment
+
+This project demonstrates how to provision an automated two-node AWS lab environment using:
+* Amazon EC2 (Amazon Linux 2023)
+* AWS IAM (Instance Profile with AmazonEC2ReadOnlyAccess)
+* TLS Private Key / SSH Key Pair Automation
+* User Data Cloud-Init Automation
+* Remote State Management (AWS S3 Backend)
+* Terraform Infrastructure-as-Code
+
+## Architecture
+
+Terraform provisions an Ansible Control Node and an Ansible Target Node within a custom VPC in `us-east-1`. The Control Node is attached to an IAM Instance Profile (`AmazonEC2ReadOnlyAccess`) and bootstrapped via `user_data` to install Ansible Core, Python dependencies (`boto3`, `botocore`), the `amazon.aws` collection, and clone the `ansible-demo-lab` repository. Both instances share a Security Group allowing SSH (port 22) and HTTP (port 80) access, using an auto-generated TLS keypair.
+
+```text
 +-----------------------------------------------------------------------------------------------------------------------------------------+
 |                                                          AWS REGION: US-EAST-1                                                          |
 |                                                                                                                                         |
@@ -9,27 +25,26 @@
 |   |   +-------------------------------------------------+                             +-----------------------------------------+   |   |
 |   |   | INSTANCE 1: ANSIBLE CONTROL SERVER              |                             | INSTANCE 2: MANAGED TARGET NODE         |   |   |
 |   |   | (Amazon Linux 2023)                             |                             | (Amazon Linux 2023)                     |   |   |
-|   |   | Tag: Environment = Demo                         |                             | Tag: Environment = Demo                 |   |   |
-|   |   | Tag: Role = tk_ansible_demo_control_node        |                             | Tag: Role = tk_ansible_demo_webserver   |   |   |
+|   |   | Tag: Environment = ${var.demo}                  \vert{}                             \vert{} Tag: Environment =${var.demo}          |   |   |
+|   |   | Tag: Role = ${var.demo}-control_node            \vert{}                             \vert{} Tag: Role =${var.demo}-webserver       |   |   |
 |   |   |                                                 |                             |                                         |   |   |
-|   |   | [IAM Role: EC2ReadOnlyAccess]                   |                             | [Day 1 Ansible Configured Software]     |   |   |
-|   |   | [Software: Ansible Core, boto3, Git]            |                             | - Nginx Web Server (Port 80)            |   |   |
-|   |   | [Local Repo: ~/tf-ansible-lab]                  |                             | - Custom index.html landing page        |   |   |
-|   |   | [SSH Key: ~/.ssh/id_rsa (tk-tf-keypair)]        |                             | - Base utils (curl, htop)               |   |   |
+|   |   | [IAM Role: AmazonEC2ReadOnlyAccess]             |                             | [Day 1 Ansible Configured Software]     |   |   |
+|   |   | [Software: Ansible Core, boto3, Git]            |                             | - Apache HTTP Server (Port 80)          |   |   |
+|   |   | [Local Repo: ~/ansible-demo-lab]                |                             | - Custom index.html landing page        |   |   |
+|   |   | [SSH Key: ~/.ssh/id_rsa]                        |                             | - Base system utilities                 |   |   |
 |   |   +-------------------------------------------------+                             +-----------------------------------------+   |   |
-|   |                            |                                                                           ^                        |   |
-|   |                            | (1) Query EC2 API                                                         |                        |   |
-|   |                            |     describe-instances                                                    | (3) Execute Playbook   |   |
-|   |                            v                                                                           |     via SSH (Port 22)  |   |
-|   |                   +-----------------+                                                                  |     using tk-tf-keypair|   |
-|   |                   |  AWS EC2 APIs   |                                                                  |                        |   |
-|   |                   +-----------------+                                                                  |                        |   |
-|   |                            |                                                                           |                        |   |
-|   |                            | (2) Returns Inventory:                                                    |                        |   |
-|   |                            |     - @role_tk_ansible_demo_control_node                                  |                        |   |
-|   |                            |     - @role_tk_ansible_demo_webserver                                     |                        |   |
-|   |                            +---------------------------------------------------------------------------+                        |   |
-|   |                                                                                                                                 |   |
+|   |                            |                                                                           ^                            |   |
+|   |                            | (1) Query EC2 API                                                         |                            |   |
+|   |                            |     describe-instances                                                    | (3) Execute Playbook       |   |
+|   |                            v                                                                           |     via SSH (Port 22)      |   |
+|   |                   +-----------------+                                                                  |                            |   |
+|   |                   |  AWS EC2 APIs   |                                                                  |                            |   |
+|   |                   +-----------------+                                                                  |                            |   |
+|   |                            |                                                                           |                            |   |
+|   |                            | (2) Returns Dynamic Inventory:                                            |                            |   |
+|   |                            |     - @role_${var.demo}_control_node                                      |                            |   |
+|   |                            |     - @role_${var.demo}_webserver ----------------------------------------+                            |   |
+|   |                                                                                                                                     |   |
 |   +---------------------------------------------------------------------------------------------------------------------------------+   |
 +-----------------------------------------------------------------------------------------------------------------------------------------+
                                         ^                                                                   ^
@@ -39,8 +54,7 @@
                          +-----------------------------+                                     +-----------------------------+
                          |      LOCAL LAPTOP / CLI     |                                     |     WEB BROWSER / TERMINAL  |
                          |  (SSH Terminal & Terraform) |                                     |   curl http://<MANAGED_IP>  |
-                         +-----------------------------+                                     +-----------------------------+
-						 
+                         +-----------------------------+                                     +-----------------------------+			 
 
 Steps for demo:
   1. SSH into the Control Server:
