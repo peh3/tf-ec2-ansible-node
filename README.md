@@ -55,7 +55,7 @@ Terraform provisions an Ansible Control Node and an Ansible Target Node within a
                          |  (SSH Terminal & Terraform) |                                     |   curl http://<MANAGED_IP>  |
                          +-----------------------------+                                     +-----------------------------+			 
 
-Steps for demo:
+##Steps for demo:
   1. SSH into the Control Server:
      ssh -i ${var.demo}-ec2-keypair.pem ec2-user@${aws_instance.ansible_control.public_ip}
 
