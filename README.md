@@ -57,3 +57,5 @@ Steps for demo:
 
   5. Execute Day 1 Playbook:
      ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml
+     ansible-playbook -i inventory/webserver.ini playbooks/day1_provision.yml 
+     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml --user ec2-user --ssh-common-args='-o StrictHostKeyChecking=no'
