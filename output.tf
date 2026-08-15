@@ -1,4 +1,3 @@
-# Save local copy of private key for SSH access from your laptop
 resource "local_file" "private_key" {
   content         = tls_private_key.ansible_ec2_key.private_key_pem
   filename        = "${path.module}/${var.demo}-ec2-keypair.pem"
@@ -31,9 +30,10 @@ output "demo_instructions" {
      ansible-inventory -i inventory/aws_ec2.yml --graph
 
   5. Execute Day 1 Playbook:
-     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml \
-       --user ec2-user \
-       --ssh-common-args='-o StrictHostKeyChecking=no'
+     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml
+     ansible-playbook -i inventory/webserver.ini playbooks/day1_provision.yml 
+     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml --user ec2-user --ssh-common-args='-o StrictHostKeyChecking=no'
+
   ==============================================================
   EOT
 }

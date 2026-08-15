@@ -56,6 +56,4 @@ Steps for demo:
      ansible-inventory -i inventory/aws_ec2.yml --graph
 
   5. Execute Day 1 Playbook:
-     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml \
-       --user ec2-user \
-       --ssh-common-args='-o StrictHostKeyChecking=no'
+     ansible-playbook -i inventory/aws_ec2.yml playbooks/day1_provision.yml
