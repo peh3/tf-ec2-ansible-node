@@ -54,7 +54,7 @@ Terraform provisions an Ansible Control Node and an Ansible Target Node within a
                          |      LOCAL LAPTOP / CLI     |                                     |     WEB BROWSER / TERMINAL  |
                          |  (SSH Terminal & Terraform) |                                     |   curl http://<MANAGED_IP>  |
                          +-----------------------------+                                     +-----------------------------+			 
-```
+text```
 
 ## Steps for demo:
   1. SSH into the Control Server:
