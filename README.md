@@ -1,4 +1,3 @@
-# terraform-ec2-infra
 # tf-ec2-ansible-node
 
 AWS EC2 + Terraform Infrastructure Deployment
